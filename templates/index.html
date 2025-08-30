@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Dashboard</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+
+    header {
+  background-color: #333;
+  color: #fff;
+  padding: 10px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* Hamburger (three lines) */
+.three-line {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  cursor: pointer;
+  gap: 5px;
+}
+.line {
+  width: 25px;
+  height: 3px;
+  background-color: #fff;
+}
+
+/* Navbar */
+.navbar {
+    padding: 0 30px;
+  display: flex;
+  gap: 20px;
+  justify-content: start;
+  flex: 1; /* takes available space between hamburger and logo */
+}
+.navbar a {
+  color: #fff;
+  text-decoration: none;
+  font-size: 16px;
+}
+.navbar a:hover {
+  text-decoration: underline;
+}
+
+/* User logo */
+.user-logo img {
+  height: 40px;
+  width: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  border-radius: 50px;
+  border: 2px solid #005bb5;
+  background-color: #f9f9f9;
+}
+
+    main {
+      padding: 20px;
+      text-align: center;
+    }
+    .tagline-container {
+    text-align: center;
+    margin: 40px 0;
+    padding: 20px;
+  }
+
+  h1 {
+    font-size: 2.2rem;
+    font-weight: bold;
+    color: #333;
+  }
+
+  /* Gradient highlight text */
+  .highlight {
+    background: linear-gradient(90deg, #00c6ff, #0072ff);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .sub-tagline {
+    font-size: 1.1rem;
+    color: #666;
+    margin: 10px 0 20px;
+  }
+
+  /* Feature badges */
+  .features {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    flex-wrap: wrap;
+  }
+
+  .feature {
+    padding: 8px 15px;
+    border-radius: 20px;
+    font-size: 0.95rem;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+
+  .easy {
+    background-color: #e0f7e9;
+    color: #2e7d32;
+  }
+
+  .time {
+    background-color: #ffe7e7;
+    color: #c62828;
+  }
+
+  .reward {
+    background-color: #e8f4ff;
+    color: #1565c0;
+  }
+.quiz-holder {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  flex-wrap: wrap;
+  margin-top: 30px;
+}
+
+.quiz {
+  padding: 20px;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  width: 280px;
+  background: #f9f9f9;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  cursor: pointer;
+  overflow: hidden;
+  position: relative;
+}
+
+.quiz img {
+  width: 100px;
+  height: 100px;
+  margin-bottom: 15px;
+  transition: transform 0.3s ease;
+}
+
+.quiz h2 {
+  margin: 10px 0;
+  font-size: 1.4rem;
+  color: #333;
+}
+
+.quiz p {
+  font-size: 0.95rem;
+  color: #555;
+  margin-bottom: 15px;
+}
+
+.quiz:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+}
+
+.quiz:hover img {
+  transform: scale(1.1);
+}
+.quiz-actions {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 10px;
+  flex-wrap: wrap; /* keeps them neat on smaller screens */
+}
+
+.start-quiz, .create-quiz {
+  display: inline-block;
+  padding: 10px 18px;
+  border-radius: 6px;
+  font-weight: 600;
+  color: #fff;
+  text-decoration: none;
+  transition: background 0.3s ease, transform 0.2s ease;
+}
+
+.start-quiz {
+  background: linear-gradient(90deg, #0072ff, #00c6ff);
+}
+.start-quiz:hover {
+  background: linear-gradient(90deg, #005bb5, #0090ff);
+  transform: scale(1.05);
+}
+
+.create-quiz {
+  background: linear-gradient(90deg, #ff9800, #ff5722);
+}
+.create-quiz:hover {
+  background: linear-gradient(90deg, #e65100, #d84315);
+  transform: scale(1.05);
+}
+
+/* Specific Quiz Themes */
+.python {
+  border-top: 5px solid #3776AB;
+}
+.java {
+  border-top: 5px solid #e76f00;
+}
+</style>
+</head>
+<body>
+  <header>
+    <div class="three-line">
+      <div class="line"></div>
+      <div class="line"></div>
+      <div class="line"></div>
+    </div>
+    <nav class="navbar">
+      <a href="#">Home</a>
+      <a href="#">About</a>
+      <a href="#">Contact</a>
+    </nav>
+
+    <div class="user-logo">
+      <img src="/static/resources/Sample_User_Icon.png" alt="User Logo">
+    </div>
+  </header>
+
+  <main>
+    <div class="tagline-container">
+  <h1>Welcome to <span class="highlight">QuizMaster</span></h1>
+  <p class="sub-tagline">Challenge Your Mind, Anytime, Anywhere</p>
+
+  <div class="features">
+    <span class="feature easy">📝 Wide Categories</span>
+    <span class="feature time">⏳ Timed Challenges</span>
+    <span class="feature reward">🏆 Earn Rewards</span>
+  </div>
+</div>
+<div class="quiz-holder">
+  <div class="quiz python">
+      <img src="/static/resources/python_quiz.png" alt="Python Quiz">
+      <h2>Python</h2>
+      <p>Test your Python knowledge with our challenging quizzes.</p>
+       <div class="quiz-actions">
+        <a href="/Quiz_create" class="create-quiz">Create Quiz</a>
+        <a href="/Quiz_start" class="start-quiz">Start Quiz</a>
+      </div>
+  </div>
+
+  <div class="quiz java">
+      <img src="/static/resources/java_quiz.png" alt="Java Quiz">
+      <h2>Java</h2>
+      <p>Test your Java knowledge with our challenging quizzes.</p>
+      <div class="quiz-actions">
+        <a href="#" class="create-quiz">Create Quiz</a>
+        <a href="#" class="start-quiz">Start Quiz</a>
+      </div>
+  </div>
+</div>
+  </main>
+</body>
+</html>

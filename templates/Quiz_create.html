@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Quiz</title>
+    <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+
+    header {
+  background-color: #333;
+  color: #fff;
+  padding: 10px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* Hamburger (three lines) */
+.three-line {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  cursor: pointer;
+  gap: 5px;
+}
+.line {
+  width: 25px;
+  height: 3px;
+  background-color: #fff;
+}
+
+/* Navbar */
+.navbar {
+    padding: 0 30px;
+  display: flex;
+  gap: 20px;
+  justify-content: start;
+  flex: 1; /* takes available space between hamburger and logo */
+}
+.navbar a {
+  color: #fff;
+  text-decoration: none;
+  font-size: 16px;
+}
+.navbar a:hover {
+  text-decoration: underline;
+}
+
+/* User logo */
+.user-logo img {
+  height: 40px;
+  width: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  border-radius: 50px;
+  border: 2px solid #005bb5;
+  background-color: #f9f9f9;
+}
+main {
+  padding: 30px;
+  display: flex;
+  justify-content: center;
+}
+
+.cards-container {
+  display: flex;
+  gap: 25px;
+  flex-wrap: wrap;
+  justify-content: center;
+  width: 100%;
+  max-width: 900px;
+}
+
+.card {
+  flex: 1 1 300px;
+  background: #fff;
+  padding: 25px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  text-align: center;
+}
+
+.card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 8px 18px rgba(0,0,0,0.2);
+}
+
+.card h2 {
+  font-size: 1.4rem;
+  color: #333;
+  margin-bottom: 10px;
+}
+
+.card p {
+  color: #666;
+  font-size: 0.95rem;
+  margin-bottom: 20px;
+}
+
+.card input[type="file"] {
+  display: block;
+  margin: 10px auto;
+}
+
+.card button {
+  background: linear-gradient(90deg, #0072ff, #00c6ff);
+  color: #fff;
+  border: none;
+  padding: 10px 18px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background 0.3s ease, transform 0.2s ease;
+}
+
+.card button:hover {
+  background: linear-gradient(90deg, #005bb5, #0090ff);
+  transform: scale(1.05);
+}
+.quiz-card {
+  background: #f9f9f9;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+.form-group {
+  margin-bottom: 15px;
+}
+.form-group label {
+  display: block;
+  margin-bottom: 5px;
+}
+.form-group input {
+  width: 25%;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+/* hide quiz creator until Create Quiz is clicked */
+/* Quiz Creation UI Container */
+.create-quiz-ui {
+  display: none;
+  position: fixed;           /* overlay */
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: #fff;
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.25);
+  width: 600px;
+  max-width: 90%;
+   max-height: 80vh;          /* 👈 limit height */
+  overflow-y: auto;  
+  z-index: 1000;             /* stay on top */
+}
+.overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.5);
+  z-index: 999;
+}
+
+/* Title inside quiz UI */
+.create-quiz-ui h2 {
+  text-align: center;
+  margin-bottom: 20px;
+  font-size: 28px;
+  color: #333;
+}
+
+/* Question block spacing */
+.question-block {
+  margin-bottom: 20px;
+  padding: 15px;
+  background: #f9f9f9;
+  border-radius: 8px;
+}
+
+/* Input fields */
+.question-input,
+.options-container input[type="text"] {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 8px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 15px;
+}
+
+/* Options indent */
+.options-container {
+  margin-left: 20px;
+}
+
+/* Buttons */
+.btn {
+  padding: 10px 18px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 16px;
+  margin-top: 10px;
+}
+
+.btn-add {
+  background: #007bff;
+  color: white;
+}
+
+.btn-add:hover {
+  background: #0056b3;
+}
+
+.submit-btn {
+  display: block;
+  margin: 20px auto 0 auto;
+  background: #28a745;
+  color: white;
+  font-weight: bold;
+}
+
+.submit-btn:hover {
+  background: #218838;
+}
+.head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+.close-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 18px;
+  color: #999;
+}
+.file-input {
+  display: block;
+  margin: 10px auto;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 8px;
+}
+</style>
+</head>
+<body>
+    <header>
+    <div class="three-line">
+      <div class="line"></div>
+      <div class="line"></div>
+      <div class="line"></div>
+    </div>
+    <nav class="navbar">
+      <a href="#">Home</a>
+      <a href="#">About</a>
+      <a href="#">Contact</a>
+    </nav>
+
+    <div class="user-logo">
+      <img src="/static/resources/Sample_User_Icon.png" alt="User Logo">
+    </div>
+  </header>
+
+  <div class="quiz-card">
+    <h1>Create a New Quiz</h1>
+    
+    <div class="form-group">
+      <label for="quiz-code">Quiz Code:</label>
+      <input type="text" id="quiz-code" placeholder="Enter a unique quiz code">
+    </div>
+
+  </div>
+
+  <main>
+  <div class="cards-container">
+    
+    <!-- Upload JSON Card -->
+    <div class="card upload-json">
+      <h2>📂 Upload Quiz JSON</h2>
+      <p>Select a quiz JSON file from your computer and upload it.</p>
+      <input type="file" id="json-file" accept=".json" class="file-input">
+      <button id="upload-btn">Upload</button>
+    </div>
+    
+    <!-- Manual Quiz Card -->
+    <div class="card create-manual">
+      <h2>✏️ Create Quiz Manually</h2>
+      <p>Build your quiz step by step with our easy form.</p>
+      <button id="create-btn">Create Quiz</button>
+    </div>
+    
+  </div>
+
+  <div class="create-quiz-ui">
+    <div class="head">
+      <h2>Create Quiz</h2>
+      <span><button type="button" onclick="closeQuizUI()" class="close-btn">❌</button></span>
+    </div>
+    <!-- Container for all questions -->
+    <div id="questions-container"></div>
+
+    <!-- Button to add new question -->
+    <button type="button" onclick="addQuestion()">➕ Add Question</button>
+  </div>
+
+</main>
+<!-- creating a manual quiz -->
+<script>
+let questionCount = 0;
+
+// 👉 Show quiz builder on Create Quiz button click
+document.getElementById('create-btn').addEventListener('click', function () {
+  const quizCode = document.getElementById('quiz-code').value.trim();
+  if (!quizCode) {
+    alert('Please enter a quiz code.');
+    return;
+  }
+
+  const ui = document.querySelector('.create-quiz-ui');
+  ui.style.display = "block";
+
+  // Add submit button only once
+  if (!document.getElementById("submit-quiz")) {
+    const submitBtn = document.createElement("button");
+    submitBtn.id = "submit-quiz";
+    submitBtn.textContent = "✅ Submit Quiz";
+    submitBtn.className = "submit-btn";
+    submitBtn.addEventListener("click", submitQuiz);
+    ui.appendChild(document.createElement("br"));
+    ui.appendChild(document.createElement("br"));
+    ui.appendChild(submitBtn);
+  }
+});
+
+// 👉 Global function so inline onclick works
+function addQuestion() {
+  questionCount++;
+
+  const questionDiv = document.createElement("div");
+  questionDiv.classList.add("question-block");
+  questionDiv.id = `question-${questionCount}`;
+
+  questionDiv.innerHTML = `
+    <label>Question ${questionCount}:</label>
+    <input type="text" placeholder="Enter your question here"
+           name="question${questionCount}" class="question-input">
+
+    <div class="options-container" id="options-${questionCount}">
+      <label>Option 1:</label>
+      <input type="text" placeholder="Enter option 1"
+             name="question${questionCount}-option1" class="option-input">
+    </div>
+
+    <div class="answer-container">
+      <label>Correct Answer:</label>
+      <select class="answer-input">
+        <option value="">-- Select Correct Answer --</option>
+        <option value="1">Option 1</option>
+      </select>
+    </div>
+
+    <button type="button" onclick="addOption(${questionCount})">➕ Add Option</button>
+    <hr>
+  `;
+
+  document.getElementById("questions-container").appendChild(questionDiv);
+}
+
+
+// 👉 Add option to a given question
+function addOption(questionId) {
+  const optionsContainer = document.getElementById(`options-${questionId}`);
+  const optionCount = optionsContainer.querySelectorAll("input.option-input").length + 1;
+
+  // Add new option input
+  const optionDiv = document.createElement("div");
+  optionDiv.innerHTML = `
+    <label>Option ${optionCount}:</label>
+    <input type="text" placeholder="Enter option ${optionCount}"
+           name="question${questionId}-option${optionCount}" class="option-input">
+  `;
+  optionsContainer.appendChild(optionDiv);
+
+  // Update dropdown
+  updateAnswerDropdown(questionId);
+}
+
+function updateAnswerDropdown(questionId) {
+  const questionBlock = document.getElementById(`question-${questionId}`);
+  const optionInputs = questionBlock.querySelectorAll('.option-input');
+  const answerDropdown = questionBlock.querySelector('.answer-input');
+
+  // Clear existing options
+  answerDropdown.innerHTML = '<option value="">-- Select Correct Answer --</option>';
+
+  // Add options dynamically
+  optionInputs.forEach((_, index) => {
+    const opt = document.createElement('option');
+    opt.value = index + 1;
+    opt.textContent = `Option ${index + 1}`;
+    answerDropdown.appendChild(opt);
+  });
+}
+
+
+// 👉 Collect all data and send to server
+
+function submitQuiz() {
+  const quizCode = document.getElementById("quiz-code").value.trim();
+  if (!quizCode) {
+    alert("Quiz code is missing!");
+    return;
+  }
+
+  const questions = [];
+  document.querySelectorAll(".question-block").forEach((block) => {
+    const questionText = block.querySelector(".question-input").value.trim();
+    const options = Array.from(block.querySelectorAll(".option-input"))
+      .map(inp => inp.value.trim())
+      .filter(Boolean);
+    const correctAnswer = block.querySelector(".answer-input").value;
+    if (questionText) {
+      questions.push({ question: questionText, options, correct_answer: correctAnswer });
+    }
+  });
+
+  if (questions.length === 0) {
+    alert("Please add at least one question.");
+    return;
+  }
+
+  
+  // Send the whole quiz to server
+  fetch("/create_quiz", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ quiz_code: quizCode, questions })
+  })
+  .then(res => res.json())
+  .then(data => {
+    if (data.status === "success") {
+      alert("Quiz submitted successfully!");
+    } else {
+      alert("Error: " + (data.error || "Unknown error"));
+    }
+  })
+  .catch(err => {
+    console.error("Submit error:", err);
+    alert("An error occurred while submitting the quiz.");
+  });
+}
+
+closeQuizUI = () => {
+  document.querySelector('.create-quiz-ui').style.display = "none";
+}
+
+</script>
+
+
+<!-- uploading json file -->
+<script>
+    document.getElementById('upload-btn').addEventListener('click', function() {
+      const fileInput = document.getElementById('json-file');
+      const quizCode = document.getElementById('quiz-code').value.trim();
+      
+      if (!quizCode) {
+        alert('Please enter a quiz code.');
+        return;
+      }
+      
+      if (fileInput.files.length === 0) {
+        alert('Please select a JSON file to upload.');
+        return;
+      }
+      
+      const file = fileInput.files[0];
+      const formData = new FormData();
+      formData.append('quiz_code', quizCode);
+      formData.append('json_file', file);
+      
+      fetch('/upload_quiz', {
+        method: 'POST',
+        body: formData
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          alert('Quiz uploaded successfully!');
+        } else {
+          alert('Error uploading quiz: ' + data.error);
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred while uploading the quiz.');
+      });
+    });
+
+</script>
+
+</body>
+</html>

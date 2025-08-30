@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f4f4f4;
+        }
+        .quiz-code {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(12px);
+            color: #171717;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+            padding: 20px;
+            border-radius: 8px;
+        }
+        input[type="text"] {
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            width: 200px;
+        }
+        button {
+            padding: 10px 15px;
+            font-size: 16px;
+            color: white;
+            background-color: #28a745;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-left: 10px;
+        }
+        button:hover {
+            background-color: #218838;
+        }
+        .join {
+            margin-top: 10px;
+        }
+        .participant {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 24px;
+            opacity: 0;                  
+            transform: scale(0.5);       
+            transition: transform 0.8s cubic-bezier(0.68, -0.55, 0.27, 1.55), opacity 0.8s ease;
+        }
+
+        .participant .emoji {
+            font-size: 60px; /* Emoji size */
+        }
+        .countdown {
+            font-size: 50px;
+            margin-top: 20px;
+            /* arrange at top corner */
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            /* Should look like the countdown timer */
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(12px);
+            color: #171717;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+            padding: 20px;
+            border-radius: 8px;
+        }
+        h2 {
+            font-size: 28px;
+            background: linear-gradient(90deg, #00f, #0ff); /* Blue → Cyan */
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .countdown h2 span {
+            font-size: 20px;
+            font-weight: bold;
+            background: linear-gradient(90deg, #ff6a00, #ee0979); /* Orange → Pink */
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+   
+        
+    </style>
+</head>
+<body>
+    <div class="quiz-code" id="quiz-code-container">
+        <h2>Enter Quiz Code</h2>
+        <label for="username">Name: </label>
+        <input type="text" id="username" placeholder="Enter Your Name">
+        <div class="join"><input type="text" id="quiz-code" placeholder="Enter Quiz Code">
+        <button id="start-quiz">Start Quiz</button></div>
+        
+    </div>
+     <div id="leaderboard" style="display:none; margin-top:20px; text-align:center;">
+        <h2>Participants</h2>
+        <div id="participants"></div>
+    </div>
+
+    <div id="countdown-container" class="countdown">
+    <h2><span id="countdown" >03:00</span></h2>
+</div>
+
+
+<script>
+    let quizCodeGlobal  = ''
+document.getElementById('countdown-container').style.display = 'none';  
+document.getElementById('start-quiz').addEventListener('click', function() {
+    const quizCode = document.getElementById('quiz-code').value.trim();
+    const username = document.getElementById('username').value.trim();
+
+    if (!username) {
+        alert('Please enter your name.');
+        return;
+    }
+    if (!quizCode) {
+        alert('Please enter a quiz code.');
+        return;
+    }
+    quizCodeGlobal = quizCode;
+    document.getElementById('quiz-code-container').style.display = 'none';
+    document.getElementById('leaderboard').style.display = 'block';
+
+    joinQuiz(quizCode, username);
+    fetchParticipants(quizCode);
+
+    // Refresh leaderboard every 2 seconds
+    setInterval(() => {
+        fetchParticipants(quizCode);
+    }, 2000);
+});
+
+let countdown = false;
+async function joinQuiz(quizCode, username) {
+    const res = await fetch("/assign_avtars", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({ quiz_code: quizCode, username: username })
+    });
+
+    const data = await res.json();
+    if (data.status === "success") {
+        const participant = data.participant;
+        console.log(`${participant.name} joined with emoji ${participant.emoji}`);
+        addParticipantToLeaderboard(participant);
+
+        if (!countdown){
+            countdown = true;
+            startCountdown(10); // Start a 3-min countdown
+            document.getElementById("countdown-container").style.display = "block";
+        }
+    } else {
+        alert("Error: " + data.message);
+    }
+}
+
+function addParticipantToLeaderboard(participant) {
+    const container = document.getElementById("participants");
+    const div = document.createElement("div");
+    div.className = "participant";
+
+    const emojiSpan = document.createElement("span");
+    emojiSpan.className = "emoji";
+    emojiSpan.textContent = participant.emoji;
+
+    const nameSpan = document.createElement("span");
+    // nameSpan.textContent = `${participant.name} - ${participant.score}`;
+
+    div.appendChild(emojiSpan);
+    div.appendChild(nameSpan);
+
+    container.appendChild(div);
+
+    setTimeout(() => {
+        div.style.opacity = 1;
+        div.style.transform = "scale(1)";
+    }, 50);
+}
+
+async function fetchParticipants(quizCode) {
+    const res = await fetch(`/quiz_participants/${quizCode}`);
+    const data = await res.json();
+
+    if (data.status === "success") {
+        const participants = data.participants;
+        const container = document.getElementById("participants");
+        container.innerHTML = ""; // Clear previous list
+        participants.forEach(p => {
+            addParticipantToLeaderboard(p);
+        });
+    } else {
+        alert("Error: " + data.message);
+    }
+}
+
+function startCountdown(duration) {
+    const countdownContainer = document.getElementById("countdown-container");
+    const countdownDisplay = document.getElementById("countdown");
+
+    countdownContainer.style.display = "block";
+    let timer = duration;
+
+    const interval = setInterval(() => {
+        const minutes = Math.floor(timer / 60);
+        const seconds = timer % 60;
+        countdownDisplay.textContent = 
+            `${minutes.toString().padStart(2,'0')}:${seconds.toString().padStart(2,'0')}`;
+
+        if (timer <= 0) {
+            clearInterval(interval);
+            countdownContainer.style.display = "none";
+            startQuiz(); // Start quiz automatically
+        }
+        timer--;
+    }, 1000);
+}
+
+function startQuiz() {
+    document.getElementById('quiz-code-container').style.display = 'none';
+    document.getElementById('leaderboard').style.display = 'block';
+    console.log("Quiz started!");
+    window.location.href = `/QuizQuestions?quiz_code=${quizCodeGlobal}&username=${encodeURIComponent(document.getElementById('username').value)}`;
+
+}
+
+</script>
+
+
+    
+</body>
+</html>
+

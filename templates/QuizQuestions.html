@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quiz</title>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #f4f4f4;
+        margin: 0;
+        padding: 0;
+    }
+
+    header {
+        background: linear-gradient(90deg, #00f, #0ff);
+        padding: 10px 20px;
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .logo {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .logo img {
+        height: 50px;
+        width: 50px;
+        border-radius: 50%;
+    }
+
+    .logo h1 {
+        font-size: 24px;
+        margin: 0;
+        background: linear-gradient(90deg, #ff6a00, #ee0979);
+        -webkit-background-clip: text;
+       
+        -webkit-text-fill-color: transparent;
+        border:2px solid #f4f4f4;
+        padding: 10px ;
+        border-radius: 20px;
+
+    }
+
+    .report button {
+        padding: 8px 16px;
+        font-size: 16px;
+        border: none;
+        border-radius: 5px;
+        background-color: #fff;
+        color: #00f;
+        cursor: pointer;
+        transition: 0.3s;
+        border: 2px solid #ee0979;
+    }
+
+    .report button:hover {
+        background-color: #eee;
+    }
+
+    @media (max-width: 600px) {
+        header {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        .report {
+            margin-top: 10px;
+            width: 100%;
+        }
+        .report button {
+            width: 100%;
+        }
+    }
+
+
+    #question-container {
+        max-width: 700px;
+        margin: 30px auto;
+        padding: 25px;
+        background: #fff;
+        border-radius: 12px;
+        box-shadow: 0 6px 18px rgba(0,0,0,0.1);
+    }
+
+    /* Question text */
+    #question-container h2 {
+        font-size: 24px;
+        margin-bottom: 20px;
+        background: linear-gradient(90deg, #ff6a00, #ee0979);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    /* Options list */
+    #question-container ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    /* Individual option */
+    #question-container ul li {
+        padding: 12px 18px;
+        margin-bottom: 12px;
+        background: #f0f0f0;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 18px;
+        transition: all 0.3s ease;
+        border: 2px solid transparent;
+    }
+
+    /* Hover effect */
+    #question-container ul li:hover {
+          background: linear-gradient(135deg, #00b894, #00cec9);
+        color: #fff;
+        border-color: #ff6a00;
+        transform: scale(1.05);
+        box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    }
+
+    /* Option clicked effect */
+    #question-container ul li:active {
+        transform: scale(0.98);
+        box-shadow: inset 0 0 5px rgba(0,0,0,0.2);
+    }
+
+    /* Responsive */
+    @media (max-width: 600px) {
+        #question-container {
+            padding: 15px;
+        }
+        #question-container h2 {
+            font-size: 20px;
+        }
+        #question-container ul li {
+            font-size: 16px;
+        }
+    }
+</style>
+
+</head>
+<body>
+<header>
+    <div class="logo">
+        <img src="/static/resources/python_quiz.png" alt="Quiz Logo">
+        <h1>Quiz Questions</h1>
+    </div>
+    <div class="report">
+        <button>Report</button>
+    </div>
+</header>
+<main>
+    <div id="question-container" class="Question-container">
+</div>
+
+</main>
+<script>
+const urlParams = new URLSearchParams(window.location.search);
+const currentQuizCode = urlParams.get('quiz_code');
+const username = urlParams.get('username');
+let timerInterval;
+const TIME_PER_QUESTION = 15; // seconds per question
+
+window.addEventListener('load', () => {
+    getNextQuestion();
+});
+
+async function getNextQuestion() {
+    clearInterval(timerInterval);
+    const res = await fetch(`/QuizQuestions/${currentQuizCode}/${username}`);
+    const data = await res.json();
+
+    if (data.status === "success") {
+        displayQuestion(data.question, data.question_number - 1, data.total_questions);
+    } else if (data.status === "finished") {
+    clearInterval(timerInterval);
+
+    const container = document.getElementById("question-container");
+    container.innerHTML = `
+        <div style="
+            text-align: center; 
+            padding: 50px; 
+            background: linear-gradient(135deg, #6a11cb, #2575fc); 
+            color: white; 
+            border-radius: 20px; 
+            box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+            max-width: 600px; 
+            margin: 50px auto;
+            font-family: Arial, sans-serif;
+        ">
+            <h1 style="font-size: 36px; margin-bottom: 20px;">🎉 Quiz Completed! 🎉</h1>
+            <p style="font-size: 22px; margin-bottom: 10px;">Your Score:</p>
+            <p style="font-size: 32px; font-weight: bold;">${data.score}</p>
+            <p style="font-size: 18px; margin-top: 20px;">Thank you for participating!</p>
+            <button id="leaderboard-btn" style="
+                margin-top: 30px; 
+                padding: 12px 25px; 
+                font-size: 18px; 
+                border: none; 
+                border-radius: 10px; 
+                background-color: #fff; 
+                color: #2575fc; 
+                cursor: pointer; 
+                font-weight: bold;
+                transition: 0.3s;
+            " onmouseover="this.style.backgroundColor='#eee'" onmouseout="this.style.backgroundColor='#fff'">
+                Leaderboard
+            </button>
+            <div id="leaderboard-container" style="margin-top: 20px;"></div>
+        </div>
+    `;
+
+    // Add event listener to fetch and display leaderboard
+    document.getElementById("leaderboard-btn").addEventListener("click", async () => {
+        const lbContainer = document.getElementById("leaderboard-container");
+        lbContainer.innerHTML = "<p style='color:white;'>Loading leaderboard...</p>";
+
+        const res = await fetch(`/quiz_participants/${currentQuizCode}`);
+        const data = await res.json();
+
+        if (data.status === "success") {
+            const leaderboardHTML = data.participants
+                .sort((a, b) => b.score - a.score)
+                .map((p, idx) => `
+                    <div style="display:flex; justify-content:space-between; 
+                                padding:8px 12px; background:${idx % 2 === 0 ? 'rgba(255,255,255,0.2)' : 'rgba(255,255,255,0.1)'}; 
+                                border-radius:5px; margin-bottom:5px;">
+                        <span>${idx + 1}. ${p.emoji} ${p.name}</span>
+                        <span>Score: ${p.score}</span>
+                    </div>
+                `).join('');
+            lbContainer.innerHTML = leaderboardHTML;
+        } else {
+            lbContainer.innerHTML = `<p style='color:red;'>${data.message}</p>`;
+        }
+    });
+} else {
+        console.error(data.message);
+    }
+}
+
+function displayQuestion(question, questionNumber, totalQuestions) {
+    const container = document.getElementById("question-container");
+    container.innerHTML = `
+        <h2>${question.question}</h2>
+        <div id="timer" style="font-size:18px; color:#ee0979; margin-bottom:15px;">Time left: ${TIME_PER_QUESTION}s</div>
+        <ul id="options-list">
+            ${question.options.map((opt, i) => `
+                <li onclick="checkAnswer(${i}, '${question.correct_answer}', this)">${opt}</li>
+            `).join('')}
+        </ul>
+        <p>Question ${questionNumber + 1} / ${totalQuestions}</p>
+    `;
+
+    startTimer(question.correct_answer);
+}
+
+function startTimer(correctAnswer) {
+    let timeLeft = TIME_PER_QUESTION;
+    const timerEl = document.getElementById("timer");
+
+    timerInterval = setInterval(() => {
+        timeLeft--;
+        timerEl.textContent = `Time left: ${timeLeft}s`;
+
+        if (timeLeft <= 0) {
+            clearInterval(timerInterval);
+            // Disable all options
+            disableOptions();
+            alert("⏰ Time's up! Moving to next question.");
+            checkAnswer(-1, correctAnswer, null); // automatic wrong
+        }
+    }, 1000);
+}
+
+function disableOptions() {
+    const options = document.querySelectorAll("#options-list li");
+    options.forEach(opt => {
+        opt.style.pointerEvents = "none";
+    });
+}
+
+async function checkAnswer(selectedIndex, correctAnswerText, element) {
+    clearInterval(timerInterval);
+
+    const options = document.querySelectorAll("#options-list li");
+
+    // Determine correct index
+    let correctIndex = Array.from(options).findIndex(opt => opt.textContent === correctAnswerText);
+
+    // Highlight selected option
+    if (element) {
+        if (selectedIndex === correctIndex) {
+            element.style.background = "#2ecc71"; // green
+        } else {
+            element.style.background = "#e74c3c"; // red
+        }
+    }
+
+    // Highlight correct answer
+    options.forEach((opt, i) => {
+        if (i === correctIndex) {
+            opt.style.background = "#2ecc71"; // green
+        }
+        opt.style.pointerEvents = "none"; // disable all options
+    });
+
+    // Submit to server
+    const res = await fetch("/submit_answer", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            quiz_code: currentQuizCode,
+            username: username,
+            selected_index: selectedIndex,
+            correct_index: correctIndex
+        })
+    });
+
+    const data = await res.json();
+    setTimeout(() => getNextQuestion(), 1500); // Move to next question after 1.5s
+}
+
+</script>
+
+
+</body>
+</html>
