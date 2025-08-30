@@ -190,7 +190,7 @@ function addParticipantToLeaderboard(participant) {
 }
 
 async function fetchParticipants(quizCode) {
-    const res = await fetch(`/quiz_participants/${quizCode}`);
+    const res = await fetch(`/quiz_participants_raw/${quizCode}`);
     const data = await res.json();
 
     if (data.status === "success") {

@@ -143,7 +143,24 @@ app.secret_key = "your-strong-secret-key"
 
 # In-memory storage
 quizzes = {}  # { quiz_code: { participants: [{name, emoji, score}] } }
-emoji_pool = ["😀","😎","🤖","🦄","🐱","🐶","👾","🍕","🚀","🎯"]
+emoji_pool = ["😀","😎","🤖","🦄","🐱","🐶","👾","🍕","🚀","🎯",
+"🌟","🔥","💡","🎉","🍩","🌈","⚡","💻","🛸","🧩",
+"🎵","🎮","🍔","🐸","🦖","🦉","🌊","☕","📚","🪐",
+"🍦","🍉","🍓","🥑","🥦","🌽","🍒","🥕","🍍","🥭",
+"🫐","🥥","🍅","🥔","🥬","🥯","🧄","🧅","🥜","🍪",
+"🍫","🍿","🥤","🍹","🍷","🍺","🥂","🏀","⚽","🏈",
+"⚾","🎾","🏐","🥏","🏓","🏸","🎱","🏒","🏑","🏏",
+"🎳","🪀","🥊","🛹","🏹","🪁","🎣","🚴","🏋️","🤸",
+"🤹","🛷","🛶","⛷️","🏂","🪂","🧗","🏇","🪃","🎯",
+"🎨","🎬","🎤","🎧","🎷","🎸","🎹","🥁","🪕","📸",
+"📹","🎥","📽️","📺","📻","🪘","🎮","🕹️","🧸","🛼",
+"🚗","🛻","🚙","🏎️","🚓","🚑","🚒","🚐","🚌","🚎",
+"🏍️","🛵","🛺","✈️","🛩️","🚁","🚂","🚆","🚇","🚊",
+"🛳️","⛴️","🚤","🛥️","🚀","🪂","🪐","🌍","🌎","🌏",
+"🌙","☀️","⛅","🌤️","🌧️","⛈️","🌩️","🌨️","❄️","🌪️",
+"🌫️","💨","💧","🔥","🌊","🍀","🌹","🌺","🌻","🌼",
+"🌷","🥀","🌱","🌲","🌳","🌴","🌵","🌾","🌿","🍁"]
+
 
 # Track current question index per participant
 current_question_index = {}  # { quiz_code: { username: index } }
@@ -222,6 +239,8 @@ def assign_avtars():
     if quiz_code not in participant_scores:
         participant_scores[quiz_code] = {}
     participant_scores[quiz_code][username] = 0
+    participant_answers.setdefault(quiz_code, {}).setdefault(username, [])
+
 
     return jsonify({"status": "success", "participant": participant})
 
@@ -278,8 +297,8 @@ def submit_answer():
     data = request.json
     quiz_code = data.get("quiz_code")
     username = data.get("username")
-    selected_index = data.get("selected_index")
-    correct_index = data.get("correct_index")
+    selected_index = int(data.get("selected_index"))
+    correct_index = int(data.get("correct_index"))
 
     is_correct = selected_index == correct_index
 
@@ -296,6 +315,11 @@ def submit_answer():
     for p in quizzes.get(quiz_code, {}).get("participants", []):
         if p["name"] == username:
             p["score"] = participant_scores[quiz_code][username]
+    
+    os.makedirs("quizzes", exist_ok=True)  # Ensure folder exists
+    with open(f"quizzes/{quiz_code}_answers.json", "w") as f:
+        json.dump(participant_answers[quiz_code], f, indent=2)
+
 
     return jsonify({
         "status": "success",
@@ -306,7 +330,7 @@ def submit_answer():
 
 # -------------------------- Leaderboard Route --------------------------
 
-@app.route("/quiz_participants/<quiz_code>", methods=["GET"])
+@app.route("/quiz_participants_raw/<quiz_code>", methods=["GET"])
 def get_participants_leaderboard(quiz_code):
     
     if quiz_code not in quizzes or "participants" not in quizzes[quiz_code]:
@@ -320,6 +344,7 @@ def get_participants_leaderboard(quiz_code):
 
     # Sort by score descending
     participants = sorted(participants, key=lambda p: p["score"], reverse=True)
+    print(participants)
 
     return jsonify({
         "status": "success",
