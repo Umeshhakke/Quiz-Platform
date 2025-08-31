@@ -223,6 +223,10 @@ def assign_avtars():
     if quiz_code not in quizzes:
         quizzes[quiz_code] = {"participants": []}
 
+    for p in quizzes[quiz_code]["participants"]:
+        if p["name"] == username:
+            return jsonify({"status": "success", "participant": p})
+
     # Assign unique emoji
     assigned_emojis = [p["emoji"] for p in quizzes[quiz_code]["participants"]]
     available_emojis = [e for e in emoji_pool if e not in assigned_emojis]
@@ -231,18 +235,13 @@ def assign_avtars():
     participant = {"name": username, "emoji": emoji, "score": 0}
     quizzes[quiz_code]["participants"].append(participant)
 
-    # Initialize participant question index and score
-    if quiz_code not in current_question_index:
-        current_question_index[quiz_code] = {}
-    current_question_index[quiz_code][username] = 0
-
-    if quiz_code not in participant_scores:
-        participant_scores[quiz_code] = {}
-    participant_scores[quiz_code][username] = 0
-    participant_answers.setdefault(quiz_code, {}).setdefault(username, [])
-
+    # Initialize participant tracking
+    current_question_index.setdefault(quiz_code, {})[username] = 0
+    participant_scores.setdefault(quiz_code, {})[username] = 0
+    participant_answers.setdefault(quiz_code, {})[username] = []
 
     return jsonify({"status": "success", "participant": participant})
+
 
 @app.route("/quiz_participants/<quiz_code>", methods=["GET"])
 def get_participants(quiz_code):
