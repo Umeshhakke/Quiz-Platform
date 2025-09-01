@@ -248,17 +248,26 @@ function displayQuestion(question, questionNumber, totalQuestions) {
     const container = document.getElementById("question-container");
     container.innerHTML = `
         <h2>${question.question}</h2>
-        <div id="timer" style="font-size:18px; color:#ee0979; margin-bottom:15px;">Time left: ${TIME_PER_QUESTION}s</div>
+        <div id="timer" style="font-size:18px; color:#ee0979; margin-bottom:15px;">
+            Time left: ${TIME_PER_QUESTION}s
+        </div>
         <ul id="options-list">
             ${question.options.map((opt, i) => `
-                <li onclick="checkAnswer(${i}, '${question.correct_answer}', this)">${opt}</li>
+                <li data-index="${i}">${opt}</li>
             `).join('')}
         </ul>
         <p>Question ${questionNumber + 1} / ${totalQuestions}</p>
     `;
 
+    // ✅ attach event listeners instead of inline onclick
+    const options = container.querySelectorAll("#options-list li");
+    options.forEach((li, i) => {
+        li.addEventListener("click", () => checkAnswer(i, question.correct_answer, li));
+    });
+
     startTimer(question.correct_answer);
 }
+
 
 function startTimer(correctAnswer) {
     let timeLeft = TIME_PER_QUESTION;

@@ -292,6 +292,8 @@ main {
       <p>Select a quiz JSON file from your computer and upload it.</p>
       <input type="file" id="json-file" accept=".json" class="file-input">
       <button id="upload-btn">Upload</button>
+      <button><a href="/static/resources/sample_quiz.json" download style="color: #FFF; text-decoration: none;">Download Sample JSON</a></button>
+
     </div>
     
     <!-- Manual Quiz Card -->
@@ -405,14 +407,21 @@ function updateAnswerDropdown(questionId) {
   // Clear existing options
   answerDropdown.innerHTML = '<option value="">-- Select Correct Answer --</option>';
 
-  // Add options dynamically
-  optionInputs.forEach((_, index) => {
+  // Add options dynamically using the actual text value
+  optionInputs.forEach((input, index) => {
     const opt = document.createElement('option');
-    opt.value = index + 1;
-    opt.textContent = `Option ${index + 1}`;
+    opt.value = input.value || `Option ${index + 1}`; // Use text if filled, else fallback
+    opt.textContent = input.value || `Option ${index + 1}`;
     answerDropdown.appendChild(opt);
+
+    // 👉 Update in real time when user types in the option field
+    input.addEventListener("input", () => {
+      opt.value = input.value;
+      opt.textContent = input.value || `Option ${index + 1}`;
+    });
   });
 }
+
 
 
 // 👉 Collect all data and send to server
