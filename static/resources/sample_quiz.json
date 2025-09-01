@@ -1,0 +1,15 @@
+{
+  "quiz_code": "Python00",
+  "questions": [
+    {
+      "question": "print(2**3)",
+      "options": ["6", "8", "9", "4"],
+      "correct_answer": "8"
+    },
+    {
+      "question": "What is the output of: print(len('Python'))?",
+      "options": ["5", "6", "7", "8"],
+      "correct_answer": "6"
+    }
+  ]
+}
