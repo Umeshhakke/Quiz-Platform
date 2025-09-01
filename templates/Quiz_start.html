@@ -46,18 +46,23 @@
         .join {
             margin-top: 10px;
         }
+        #participants {
+            display: flex;
+            flex-wrap: wrap;     /* Allow wrapping */
+            gap: 20px;           /* Space between participants */
+            justify-content: center; /* Keep them centered */
+        }
         .participant {
             display: flex;
             align-items: center;
-            gap: 10px;
-            font-size: 24px;
-            opacity: 0;                  
-            transform: scale(0.5);       
+            gap: 8px;
+            font-size: 20px;
+            opacity: 0;
+            transform: scale(0.5);
             transition: transform 0.8s cubic-bezier(0.68, -0.55, 0.27, 1.55), opacity 0.8s ease;
         }
-
         .participant .emoji {
-            font-size: 60px; /* Emoji size */
+            font-size: 50px;
         }
         .countdown {
             font-size: 50px;
@@ -170,6 +175,11 @@ function addParticipantToLeaderboard(participant) {
     const container = document.getElementById("participants");
     const div = document.createElement("div");
     div.className = "participant";
+    div.style.display = "flex";
+    div.style.alignItems = "center";
+    div.style.marginBottom = "10px";
+    div.style.gap = "10px";
+    div.style.flexWrap = "wrap";
 
     const emojiSpan = document.createElement("span");
     emojiSpan.className = "emoji";
